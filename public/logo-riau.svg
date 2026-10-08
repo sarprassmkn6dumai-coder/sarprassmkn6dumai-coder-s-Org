@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="shieldGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#008844" />
+      <stop offset="100%" stop-color="#006633" />
+    </linearGradient>
+    <linearGradient id="goldLancang" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF066" />
+      <stop offset="50%" stop-color="#FFCC00" />
+      <stop offset="100%" stop-color="#E59900" />
+    </linearGradient>
+    <linearGradient id="seaWaves" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#00A8E8" />
+      <stop offset="100%" stop-color="#00558F" />
+    </linearGradient>
+    <linearGradient id="redBanner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E61919" />
+      <stop offset="100%" stop-color="#A80F0F" />
+    </linearGradient>
+    <filter id="subtleDrop" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Padi & Kapas / Outer Golden Circular Chain Border -->
+  <g filter="url(#subtleDrop)">
+    <!-- Shield Outline -->
+    <!-- Base Shield: Curved sides tapering to bottom point -->
+    <path d="M 60,70 
+             Q 200,45 340,70 
+             C 355,160 360,280 340,380 
+             C 310,440 250,475 200,495 
+             C 150,475 90,440 60,380 
+             C 40,280 45,160 60,70 Z" 
+          fill="url(#shieldGreen)" 
+          stroke="#FFD700" 
+          stroke-width="12" 
+          stroke-linejoin="round" />
+
+    <!-- Inner Golden Rim (Chain / Mata Rantai Motif) -->
+    <path d="M 75,85 
+             Q 200,62 325,85 
+             C 338,165 342,275 325,365 
+             C 300,420 245,455 200,473 
+             C 155,455 100,420 75,365 
+             C 58,275 62,165 75,85 Z" 
+          fill="none" 
+          stroke="#FFE552" 
+          stroke-width="3" 
+          stroke-dasharray="6,4" />
+
+    <!-- Top Star (Bintang Bersudut Lima Emas) -->
+    <g transform="translate(200, 105)">
+      <polygon points="0,-24 7,-7 24,-7 11,4 16,21 0,11 -16,21 -11,4 -24,-7 -7,-7" 
+               fill="#FFD700" stroke="#CC9900" stroke-width="1.5" />
+      <circle cx="0" cy="2" r="3" fill="#FFFFFF" opacity="0.6" />
+    </g>
+
+    <!-- Keris Bersilang / Ornamen Melayu Riau di belakang perahu -->
+    <g stroke="#FFD700" stroke-width="4" stroke-linecap="round">
+      <line x1="120" y1="140" x2="280" y2="280" opacity="0.4" />
+      <line x1="280" y1="140" x2="120" y2="280" opacity="0.4" />
+    </g>
+
+    <!-- Perahu Lancang Kuning (Lancang Kuning Sailing Boat) -->
+    <g id="lancangKuning">
+      <!-- Mast (Tiang Layar) -->
+      <line x1="195" y1="135" x2="195" y2="285" stroke="#FFE066" stroke-width="6" stroke-linecap="round" />
+      <line x1="195" y1="140" x2="135" y2="260" stroke="#FFF59D" stroke-width="2" />
+      <line x1="195" y1="140" x2="265" y2="260" stroke="#FFF59D" stroke-width="2" />
+
+      <!-- Sail (Layar Terkembang Lancang Kuning) -->
+      <!-- Main Sail Center-Right -->
+      <path d="M 198,145 
+               Q 255,185 270,245 
+               Q 235,255 198,252 Z" 
+            fill="url(#goldLancang)" 
+            stroke="#D48800" 
+            stroke-width="2" />
+      
+      <!-- Front Jib Sail (Layar Depan Kiri) -->
+      <path d="M 192,152 
+               Q 145,195 132,250 
+               Q 165,254 192,252 Z" 
+            fill="url(#goldLancang)" 
+            stroke="#D48800" 
+            stroke-width="2" />
+
+      <!-- Bendera di Puncak Tiang -->
+      <polygon points="195,135 220,142 195,149" fill="#E61919" />
+
+      <!-- Badan Perahu Lancang Kuning (Hull of the boat) -->
+      <path d="M 105,270 
+               C 120,295 170,305 200,305 
+               C 230,305 280,295 295,270 
+               C 285,282 235,290 200,290 
+               C 165,290 115,282 105,270 Z" 
+            fill="#FFE066" 
+            stroke="#B26B00" 
+            stroke-width="3" />
+      
+      <!-- Motif Ukiran Perahu (Selembayung Haluan & Buritan) -->
+      <!-- Haluan Kiri -->
+      <path d="M 105,270 Q 92,250 85,240 Q 98,248 112,265" fill="#FFCC00" stroke="#B26B00" stroke-width="2" />
+      <!-- Buritan Kanan -->
+      <path d="M 295,270 Q 308,250 315,240 Q 302,248 288,265" fill="#FFCC00" stroke="#B26B00" stroke-width="2" />
+
+      <!-- Garis Dayung / Ornamen Sisi -->
+      <line x1="130" y1="282" x2="270" y2="282" stroke="#B26B00" stroke-width="2" stroke-dasharray="8,4" />
+    </g>
+
+    <!-- Ombak Laut (Sea Waves) Gelombang Putih & Biru -->
+    <g id="waves">
+      <!-- Wave 1 (Back) -->
+      <path d="M 95,302 
+               Q 125,292 155,304 
+               Q 185,316 215,302 
+               Q 245,292 275,304 
+               Q 295,312 305,302
+               L 305,340 
+               Q 200,370 95,340 Z" 
+            fill="url(#seaWaves)" 
+            opacity="0.85" />
+      <!-- Wave 2 (Front Crisp White Highlights) -->
+      <path d="M 105,316 
+               Q 135,306 165,318 
+               Q 195,328 225,316 
+               Q 255,306 285,318 
+               L 282,330 
+               Q 200,350 118,330 Z" 
+            fill="#FFFFFF" 
+            opacity="0.9" />
+      <!-- Gelombang Baris Tiga -->
+      <path d="M 125,335 
+               Q 160,326 200,336 
+               Q 240,344 275,335 
+               L 265,348 
+               Q 200,360 135,348 Z" 
+            fill="#00558F" />
+    </g>
+
+    <!-- Pita Merah Tulisan RIAU di Bawah -->
+    <g id="ribbonRiau" transform="translate(0, 10)">
+      <!-- Pita Merah Berlipat -->
+      <path d="M 120,405 
+               L 100,430 L 125,425 L 140,435
+               L 130,410 Z" 
+            fill="#800000" />
+      <path d="M 280,405 
+               L 300,430 L 275,425 L 260,435
+               L 270,410 Z" 
+            fill="#800000" />
+      
+      <!-- Main Ribbon Banner -->
+      <path d="M 115,405 
+               Q 200,390 285,405 
+               L 280,442 
+               Q 200,425 120,442 Z" 
+            fill="url(#redBanner)" 
+            stroke="#FFD700" 
+            stroke-width="3" />
+
+      <!-- Text RIAU (Emas Bergaris Tepi) -->
+      <text x="200" y="428" 
+            font-family="'Times New Roman', Times, serif" 
+            font-size="28" 
+            font-weight="900" 
+            letter-spacing="6" 
+            fill="#FFE552" 
+            stroke="#5A0000" 
+            stroke-width="1"
+            text-anchor="middle">
+        RIAU
+      </text>
+    </g>
+  </g>
+</svg>

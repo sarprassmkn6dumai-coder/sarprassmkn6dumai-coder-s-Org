@@ -1,0 +1,10 @@
+{
+  "name": "SIM-SARPRAS SMKN 6 Dumai",
+  "description": "Sistem Informasi Manajemen Sarana dan Prasarana SMKN 6 Dumai - Pengelolaan Inventaris, QR Code Aset, Laporan Kerusakan, Pemeliharaan, Peminjaman, Ruangan, Anggaran & Google Apps Script Integration.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

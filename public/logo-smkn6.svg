@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient for Hexagon Shield -->
+    <linearGradient id="shieldBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0828C8" />
+      <stop offset="100%" stop-color="#00188A" />
+    </linearGradient>
+    <!-- Gold Border Gradient -->
+    <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE600" />
+      <stop offset="50%" stop-color="#FFC000" />
+      <stop offset="100%" stop-color="#FF9900" />
+    </linearGradient>
+    <!-- Lightning Gradient -->
+    <linearGradient id="lightningGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF066" />
+      <stop offset="100%" stop-color="#FFCC00" />
+    </linearGradient>
+    <!-- Flask Gradient -->
+    <linearGradient id="flaskFluid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#70E4F9" />
+      <stop offset="100%" stop-color="#00B4D8" />
+    </linearGradient>
+    <!-- Robot Arm Gradient -->
+    <linearGradient id="robotArmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A00" />
+      <stop offset="100%" stop-color="#D84E00" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Hexagon (Pointed Top and Bottom) -->
+  <!-- Coordinates: Top (250, 16), Top-Right (460, 137), Bottom-Right (460, 363), Bottom (250, 484), Bottom-Left (40, 363), Top-Left (40, 137) -->
+  <polygon points="250,16 460,137 460,363 250,484 40,363 40,137" 
+           fill="url(#shieldBg)" stroke="url(#goldBorder)" stroke-width="14" stroke-linejoin="round" />
+  
+  <!-- Inner Border Line -->
+  <polygon points="250,28 448,143 448,357 250,472 52,357 52,143" 
+           fill="none" stroke="#22D3EE" stroke-width="3" opacity="0.6" stroke-linejoin="round" />
+
+  <!-- Star and Crescent (Top Center) -->
+  <g transform="translate(250, 85)" fill="#FFFFFF">
+    <!-- Crescent Moon -->
+    <path d="M 0,-25 A 22,22 0 1,0 18,16 A 18,18 0 1,1 -5,-19 A 22,22 0 0,0 0,-25 Z" fill="#FFE500" />
+    <!-- 5-Point Star -->
+    <polygon points="0,-18 3,-9 12,-9 5,-3 8,6 0,1 -8,6 -5,-3 -12,-9 -3,-9" fill="#FFFFFF" />
+  </g>
+
+  <!-- Atomic Orbital Rings with Electrons -->
+  <g transform="translate(250, 132)">
+    <!-- Orbits -->
+    <ellipse cx="0" cy="0" rx="28" ry="8" fill="none" stroke="#38BDF8" stroke-width="2.5" transform="rotate(-30)" />
+    <ellipse cx="0" cy="0" rx="28" ry="8" fill="none" stroke="#38BDF8" stroke-width="2.5" transform="rotate(30)" />
+    <ellipse cx="0" cy="0" rx="28" ry="8" fill="none" stroke="#38BDF8" stroke-width="2.5" transform="rotate(90)" />
+    <!-- Nucleus Center -->
+    <circle cx="0" cy="0" r="7" fill="#FFE600" />
+    <!-- Electrons -->
+    <circle cx="-18" cy="-8" r="4" fill="#38BDF8" />
+    <circle cx="18" cy="8" r="4" fill="#38BDF8" />
+    <circle cx="0" cy="-14" r="4" fill="#F43F5E" />
+  </g>
+
+  <!-- Left: Industrial Robot Manipulator Arm -->
+  <g id="robotArm" transform="translate(85, 90)">
+    <!-- Base column -->
+    <rect x="48" y="190" width="34" height="75" fill="url(#robotArmGrad)" stroke="#B33E00" stroke-width="2" rx="3" />
+    
+    <!-- Joint 1 -->
+    <circle cx="65" cy="180" r="16" fill="#475569" stroke="#E2E8F0" stroke-width="2" />
+    <circle cx="65" cy="180" r="6" fill="#FFFFFF" />
+
+    <!-- Link 1 (Lower Arm angled) -->
+    <polygon points="56,180 40,75 62,70 78,175" fill="url(#robotArmGrad)" stroke="#B33E00" stroke-width="2" />
+
+    <!-- Joint 2 (Elbow) -->
+    <circle cx="51" cy="73" r="14" fill="#475569" stroke="#E2E8F0" stroke-width="2" />
+    <circle cx="51" cy="73" r="5" fill="#FFE600" />
+
+    <!-- Link 2 (Upper Arm horizontal forward) -->
+    <polygon points="51,66 100,50 102,68 51,80" fill="url(#robotArmGrad)" stroke="#B33E00" stroke-width="2" />
+
+    <!-- Wrist Joint -->
+    <circle cx="102" cy="58" r="10" fill="#475569" stroke="#E2E8F0" stroke-width="2" />
+
+    <!-- Gripper Tool / Claws -->
+    <path d="M 102,54 L 118,40 L 126,45 L 114,58 Z" fill="url(#robotArmGrad)" stroke="#B33E00" stroke-width="1.5" />
+    <path d="M 102,62 L 118,74 L 126,69 L 114,58 Z" fill="url(#robotArmGrad)" stroke="#B33E00" stroke-width="1.5" />
+    <circle cx="114" cy="58" r="3" fill="#FFE600" />
+  </g>
+
+  <!-- Center: Chemical Conical Flask (Erlenmeyer) -->
+  <g id="chemistryFlask" transform="translate(195, 155)">
+    <!-- Flask Outline / Glass -->
+    <path d="M 44,5 L 66,5 L 66,35 L 105,125 C 109,134 103,145 93,145 L 17,145 C 7,145 1,134 5,125 L 44,35 Z"
+          fill="#FFFFFF" fill-opacity="0.95" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round" />
+    
+    <!-- Liquid Inside Flask -->
+    <path d="M 18,95 Q 55,88 92,95 L 98,138 C 98,142 95,145 90,145 L 20,145 C 15,145 12,142 12,138 Z"
+          fill="url(#flaskFluid)" />
+    
+    <!-- Flask Rim -->
+    <rect x="40" y="2" width="30" height="6" rx="3" fill="#FFFFFF" />
+
+    <!-- Liquid Meniscus Highlight -->
+    <ellipse cx="55" cy="95" rx="36" ry="6" fill="#A5F3FC" opacity="0.6" />
+    <!-- Bubbles -->
+    <circle cx="45" cy="118" r="4" fill="#FFFFFF" opacity="0.8" />
+    <circle cx="68" cy="126" r="3" fill="#FFFFFF" opacity="0.7" />
+    <circle cx="58" cy="108" r="2.5" fill="#FFFFFF" opacity="0.8" />
+  </g>
+
+  <!-- Center Overlay: Energetic Lightning Bolt (Teknik Listrik) -->
+  <g id="lightningBolt" transform="translate(190, 150)">
+    <!-- Yellow Outer Glow Stroke -->
+    <polygon points="68,0 8,62 50,62 30,140 92,68 54,68"
+             fill="url(#lightningGlow)" stroke="#EAB308" stroke-width="4" stroke-linejoin="miter" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.4))" />
+    <!-- Inner bright highlight -->
+    <polygon points="65,8 18,60 48,60 36,125 82,70 54,70"
+             fill="#FFFBEB" opacity="0.85" />
+  </g>
+
+  <!-- Right: Padi dan Kapas (Rice and Cotton Garland) -->
+  <g id="padiKapas" transform="translate(285, 90)">
+    <!-- Rice Stalk (Padi) in Golden Yellow -->
+    <path d="M 0,165 C 20,120 40,70 0,0" fill="none" stroke="#D97706" stroke-width="3" />
+    <!-- Grains of Rice -->
+    <g fill="#FDE047" stroke="#CA8A04" stroke-width="1.5">
+      <ellipse cx="-4" cy="15" rx="7" ry="14" transform="rotate(-35, -4, 15)" />
+      <ellipse cx="14" cy="28" rx="7" ry="14" transform="rotate(25, 14, 28)" />
+      <ellipse cx="6" cy="46" rx="7" ry="14" transform="rotate(-25, 6, 46)" />
+      <ellipse cx="26" cy="62" rx="7" ry="14" transform="rotate(25, 26, 62)" />
+      <ellipse cx="18" cy="82" rx="7" ry="14" transform="rotate(-20, 18, 82)" />
+      <ellipse cx="36" cy="102" rx="7" ry="14" transform="rotate(25, 36, 102)" />
+      <ellipse cx="26" cy="124" rx="7" ry="14" transform="rotate(-15, 26, 124)" />
+      <ellipse cx="44" cy="146" rx="7" ry="14" transform="rotate(20, 44, 146)" />
+      <ellipse cx="32" cy="170" rx="7" ry="14" transform="rotate(-10, 32, 170)" />
+    </g>
+
+    <!-- Cotton Garland (Kapas) in White with Green Calyx -->
+    <g transform="translate(38, 5)">
+      <!-- 7 Cotton Bolls -->
+      <!-- Boll 1 -->
+      <g transform="translate(0, 5)">
+        <circle cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+        <path d="M -5,6 Q 0,0 5,6 L 0,11 Z" fill="#16A34A" />
+      </g>
+      <!-- Boll 2 -->
+      <g transform="translate(12, 28)">
+        <circle cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+        <path d="M -5,6 Q 0,0 5,6 L 0,11 Z" fill="#16A34A" />
+      </g>
+      <!-- Boll 3 -->
+      <g transform="translate(20, 55)">
+        <circle cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+        <path d="M -5,6 Q 0,0 5,6 L 0,11 Z" fill="#16A34A" />
+      </g>
+      <!-- Boll 4 -->
+      <g transform="translate(24, 85)">
+        <circle cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+        <path d="M -5,6 Q 0,0 5,6 L 0,11 Z" fill="#16A34A" />
+      </g>
+      <!-- Boll 5 -->
+      <g transform="translate(23, 115)">
+        <circle cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+        <path d="M -5,6 Q 0,0 5,6 L 0,11 Z" fill="#16A34A" />
+      </g>
+      <!-- Boll 6 -->
+      <g transform="translate(18, 145)">
+        <circle cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+        <path d="M -5,6 Q 0,0 5,6 L 0,11 Z" fill="#16A34A" />
+      </g>
+      <!-- Boll 7 -->
+      <g transform="translate(8, 175)">
+        <circle cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+        <path d="M -5,6 Q 0,0 5,6 L 0,11 Z" fill="#16A34A" />
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom Foreground: Open Book with Ribbon Banner -->
+  <g id="openBookBanner" transform="translate(250, 340)">
+    <!-- Book Pages Background (White) -->
+    <!-- Left Page -->
+    <path d="M 0,0 C -50,-18 -110,-14 -155,20 L -140,55 C -95,28 -45,30 0,42 Z"
+          fill="#FFFFFF" stroke="#1E293B" stroke-width="2.5" />
+    <!-- Right Page -->
+    <path d="M 0,0 C 50,-18 110,-14 155,20 L 140,55 C 95,28 45,30 0,42 Z"
+          fill="#FFFFFF" stroke="#1E293B" stroke-width="2.5" />
+    
+    <!-- Spine Divider -->
+    <path d="M 0,-4 L 0,44" stroke="#0F172A" stroke-width="3" />
+
+    <!-- Ribbon Banner (Black / Dark Navy Banner with Text) -->
+    <!-- Left Ribbon -->
+    <path d="M -4,20 C -45,12 -95,12 -155,38 L -150,66 C -95,44 -45,42 -4,48 Z"
+          fill="#0F172A" stroke="#FFFFFF" stroke-width="1.5" />
+    <!-- Right Ribbon -->
+    <path d="M 4,20 C 45,12 95,12 155,38 L 150,66 C 95,44 45,42 4,48 Z"
+          fill="#0F172A" stroke="#FFFFFF" stroke-width="1.5" />
+
+    <!-- Banner Texts in White Serif/Sans Bold -->
+    <text x="-78" y="44" fill="#FFFFFF" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="16" letter-spacing="1.5" text-anchor="middle" transform="rotate(-6, -78, 44)">SMK N 6</text>
+    <text x="78" y="44" fill="#FFFFFF" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="16" letter-spacing="1.5" text-anchor="middle" transform="rotate(6, 78, 44)">KOTA DUMAI</text>
+  </g>
+
+  <!-- Bottom Label: RIAU -->
+  <g transform="translate(250, 426)">
+    <text x="0" y="0" fill="#FFFFFF" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="28" letter-spacing="9" text-anchor="middle">RIAU</text>
+  </g>
+</svg>
