@@ -77,6 +77,8 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    const guest = StorageService.switchToPublicVisitor();
+    setCurrentUser(guest);
     setIsLoggedIn(false);
     StorageService.logout();
   };
@@ -146,8 +148,9 @@ export default function App() {
     setStorageConfig(StorageService.getConfig());
   };
 
-  // CRUD: Assets
+  // CRUD: Assets (Hanya diizinkan untuk Admin / Pengelola Aset Sekolah)
   const handleAddAsset = (newAsset: Omit<AssetItem, 'id'>) => {
+    if (currentUser.role !== 'admin_sarpras') return;
     const created: AssetItem = {
       ...newAsset,
       id: `asset-${Date.now()}`,
@@ -158,12 +161,14 @@ export default function App() {
   };
 
   const handleUpdateAsset = (updatedAsset: AssetItem) => {
+    if (currentUser.role !== 'admin_sarpras') return;
     const updated = assets.map((a) => (a.id === updatedAsset.id ? updatedAsset : a));
     setAssets(updated);
     StorageService.saveAssets(updated);
   };
 
   const handleDeleteAsset = (id: string) => {
+    if (currentUser.role !== 'admin_sarpras') return;
     const updated = assets.filter((a) => a.id !== id);
     setAssets(updated);
     StorageService.saveAssets(updated);
@@ -408,7 +413,11 @@ export default function App() {
     return (
       <LoginPage
         onLoginSuccess={handleLoginSuccess}
-        onContinueAsGuest={() => setIsLoggedIn(true)}
+        onContinueAsGuest={() => {
+          const guest = StorageService.switchToPublicVisitor();
+          setCurrentUser(guest);
+          setIsLoggedIn(true);
+        }}
       />
     );
   }
@@ -461,6 +470,8 @@ export default function App() {
               rooms={rooms}
               setActiveTab={setActiveTab}
               userRole={currentUser.role}
+              onOpenLoginModal={() => setIsLoginModalOpen(true)}
+              onSelectUser={handleSelectUser}
             />
           )}
 
@@ -473,6 +484,7 @@ export default function App() {
               onUpdateAsset={handleUpdateAsset}
               onDeleteAsset={handleDeleteAsset}
               onSelectAssetForQR={handleSelectAssetForQR}
+              onOpenLoginModal={() => setIsLoginModalOpen(true)}
             />
           )}
 
@@ -605,6 +617,8 @@ export default function App() {
               onResetDefaultData={handleResetDefault}
               isSyncing={isSyncing}
               syncError={syncError}
+              onOpenLoginModal={() => setIsLoginModalOpen(true)}
+              onSelectUser={handleSelectUser}
             />
           )}
         </main>

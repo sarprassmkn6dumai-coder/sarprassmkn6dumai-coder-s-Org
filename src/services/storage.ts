@@ -27,6 +27,7 @@ import {
   initialBudgets,
   initialSchoolProfile,
   initialUsers,
+  publicVisitorUser,
 } from '../data/mockData';
 
 const STORAGE_KEYS = {
@@ -221,6 +222,12 @@ try {
     localStorage.removeItem(STORAGE_KEYS.BUDGETS);
     localStorage.setItem('simsarpras_rooms_theory_classes_v5', 'true');
   }
+  // Ensure default visitor mode is public (read-only) unless explicitly logged in as admin
+  if (typeof window !== 'undefined' && localStorage.getItem('simsarpras_public_visitor_default_v6') !== 'true') {
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    localStorage.removeItem(STORAGE_KEYS.USERS);
+    localStorage.setItem('simsarpras_public_visitor_default_v6', 'true');
+  }
 } catch (e) {
   console.warn('Could not run storage migration:', e);
 }
@@ -269,6 +276,9 @@ export const StorageService = {
   getBudgets: (): BudgetAllocation[] => getStoredData(STORAGE_KEYS.BUDGETS, initialBudgetAllocations),
   getSchoolProfile: (): SchoolProfile => {
     const profile = getStoredData(STORAGE_KEYS.SCHOOL_PROFILE, initialSchoolProfile);
+    let needsSave = false;
+    let updated: SchoolProfile = { ...profile };
+
     if (
       profile.npsn === '10495478' ||
       profile.npsn === '10495312' ||
@@ -276,8 +286,8 @@ export const StorageService = {
       (profile.alamat && profile.alamat.includes('Lubuk Gaung')) ||
       (profile.alamat && profile.alamat.includes('Jl. M.Yusuf'))
     ) {
-      const updated: SchoolProfile = {
-        ...profile,
+      updated = {
+        ...updated,
         npsn: '69972998',
         alamat: 'JL. Swadaya, Kel. Teluk Makmur, Kec. Medang Kampai Dumai – Riau 28825',
         kelurahan: 'Teluk Makmur',
@@ -286,13 +296,29 @@ export const StorageService = {
         email: 'smkn6dumai2023@gmail.com',
         website: 'https://smkn6dumai.sch.id',
       };
-      setStoredData(STORAGE_KEYS.SCHOOL_PROFILE, updated);
-      return updated;
+      needsSave = true;
     }
-    return profile;
+
+    if (!updated.jabatanPengelolaAset) {
+      updated.jabatanPengelolaAset = initialSchoolProfile.jabatanPengelolaAset || 'Pengelola Aset & Koordinator Sarpras';
+      needsSave = true;
+    }
+    if (!updated.skPengelolaAset) {
+      updated.skPengelolaAset = initialSchoolProfile.skPengelolaAset || 'SK/421.5/SMKN6-DMI/2026/014';
+      needsSave = true;
+    }
+    if (!updated.riwayatPengelolaAset || updated.riwayatPengelolaAset.length === 0) {
+      updated.riwayatPengelolaAset = initialSchoolProfile.riwayatPengelolaAset || [];
+      needsSave = true;
+    }
+
+    if (needsSave) {
+      setStoredData(STORAGE_KEYS.SCHOOL_PROFILE, updated);
+    }
+    return updated;
   },
   getCurrentUser: (): User => {
-    const u = getStoredData(STORAGE_KEYS.CURRENT_USER, initialUsers[1]); // Default to admin Rahmat Hidayat
+    const u = getStoredData(STORAGE_KEYS.CURRENT_USER, publicVisitorUser); // Default to public visitor (read-only)
     return { ...u, jurusan: u.jurusan ? normalizeJurusan(u.jurusan) : undefined };
   },
   getUsers: (): User[] => {
@@ -301,11 +327,26 @@ export const StorageService = {
   },
   saveUsers: (users: User[]) => setStoredData(STORAGE_KEYS.USERS, users),
 
-  updateAssetManager: (updatedManager: { name: string; jabatan: string; username?: string; email?: string; phone?: string }): User => {
+  updateAssetManager: (updatedManager: {
+    name: string;
+    jabatan: string;
+    nip?: string;
+    semester?: string;
+    nomorSK?: string;
+    username?: string;
+    email?: string;
+    phone?: string;
+  }): User => {
+    const currentUser = StorageService.getCurrentUser();
+    // Hanya Admin / Pengelola Aset Sekolah itu sendiri yang diizinkan mengubah data Pengelola Aset
+    if (currentUser.role !== 'admin_sarpras') {
+      const users = StorageService.getUsers();
+      return users.find((u) => u.role === 'admin_sarpras') || currentUser;
+    }
+
     const users = StorageService.getUsers();
-    // Find asset manager or admin_sarpras
     let managerIndex = users.findIndex((u) => u.role === 'admin_sarpras' || u.id === 'usr-2');
-    
+
     let updatedUser: User;
     if (managerIndex !== -1) {
       updatedUser = {
@@ -333,7 +374,47 @@ export const StorageService = {
 
     StorageService.saveUsers(users);
 
-    const currentUser = StorageService.getCurrentUser();
+    // Synchronize SchoolProfile & Semester History
+    const currentSchool = StorageService.getSchoolProfile();
+    const newNip = updatedManager.nip !== undefined ? updatedManager.nip.trim() : (currentSchool.nipPengelolaAset || '19880421 201101 1 003');
+    const newSemester = updatedManager.semester !== undefined ? updatedManager.semester.trim() : (currentSchool.semesterAktif || 'Semester Ganjil TA 2026/2027');
+    const newSK = updatedManager.nomorSK !== undefined ? updatedManager.nomorSK.trim() : (currentSchool.skPengelolaAset || 'SK/421.5/SMKN6-DMI/2026/014');
+
+    const prevHistory = currentSchool.riwayatPengelolaAset || [];
+    const topHistory = prevHistory[0];
+    const hasChanged =
+      !topHistory ||
+      topHistory.nama !== updatedManager.name.trim() ||
+      topHistory.semester !== newSemester ||
+      topHistory.nip !== newNip ||
+      topHistory.nomorSK !== newSK;
+
+    const updatedHistory = hasChanged
+      ? [
+          {
+            id: `rw-${Date.now()}`,
+            nama: updatedManager.name.trim(),
+            nip: newNip,
+            jabatan: updatedManager.jabatan.trim(),
+            semester: newSemester,
+            nomorSK: newSK,
+            tanggalPenetapan: new Date().toISOString().slice(0, 10),
+            diubahOleh: `${currentUser.name} (Admin / Pengelola Aset)`,
+          },
+          ...prevHistory,
+        ]
+      : prevHistory;
+
+    StorageService.saveSchoolProfile({
+      ...currentSchool,
+      pengelolaAset: updatedManager.name.trim(),
+      nipPengelolaAset: newNip,
+      jabatanPengelolaAset: updatedManager.jabatan.trim(),
+      semesterAktif: newSemester,
+      skPengelolaAset: newSK,
+      riwayatPengelolaAset: updatedHistory,
+    });
+
     if (currentUser.id === updatedUser.id || currentUser.role === 'admin_sarpras') {
       StorageService.saveCurrentUser(updatedUser);
     }
@@ -422,7 +503,12 @@ export const StorageService = {
     setStoredData(STORAGE_KEYS.IS_LOGGED_IN, status);
   },
   logout: () => {
+    setStoredData(STORAGE_KEYS.CURRENT_USER, publicVisitorUser);
     setStoredData(STORAGE_KEYS.IS_LOGGED_IN, false);
+  },
+  switchToPublicVisitor: (): User => {
+    setStoredData(STORAGE_KEYS.CURRENT_USER, publicVisitorUser);
+    return publicVisitorUser;
   },
   getConfig: (): StorageConfig => getStoredData(STORAGE_KEYS.GAS_CONFIG, defaultStorageConfig),
   getGasWebhookUrl: (): string => getStoredData(STORAGE_KEYS.GAS_WEBHOOK_URL, ''),
@@ -466,7 +552,7 @@ export const StorageService = {
     StorageService.saveVendors(initialVendors);
     StorageService.saveBudgets(initialBudgetAllocations);
     StorageService.saveSchoolProfile(initialSchoolProfile);
-    StorageService.saveCurrentUser(initialUsers[0]);
+    StorageService.saveCurrentUser(publicVisitorUser);
     StorageService.saveConfig(defaultStorageConfig);
   },
 

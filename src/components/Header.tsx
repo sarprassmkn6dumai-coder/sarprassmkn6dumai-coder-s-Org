@@ -50,9 +50,11 @@ export const Header: React.FC<HeaderProps> = ({
       case 'waka_sarpras':
         return <span className="bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs px-2 py-0.5 rounded-full font-medium">Waka Sarpras</span>;
       case 'admin_sarpras':
-        return <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs px-2 py-0.5 rounded-full font-medium">Admin Sarpras</span>;
+        return <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs px-2 py-0.5 rounded-full font-medium">Admin / Pengelola Aset</span>;
       case 'guru':
         return <span className="bg-sky-500/20 text-sky-300 border border-sky-400/30 text-xs px-2 py-0.5 rounded-full font-medium">Guru / Kapro</span>;
+      case 'publik':
+        return <span className="bg-slate-500/20 text-slate-300 border border-slate-400/30 text-xs px-2 py-0.5 rounded-full font-medium">Pengunjung Publik (Read-Only)</span>;
       default:
         return <span className="bg-purple-500/20 text-purple-300 border border-purple-400/30 text-xs px-2 py-0.5 rounded-full font-medium">Siswa / Staf</span>;
     }

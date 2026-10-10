@@ -27,10 +27,42 @@ export const initialSchoolProfile: SchoolProfile = {
   nipWakaSarpras: '19790815 200801 1 012',
   pengelolaAset: 'Rahmat Hidayat, A.Md.',
   nipPengelolaAset: '19880421 201101 1 003',
-  semesterAktif: 'Semester Ganjil TA 2024/2025',
+  jabatanPengelolaAset: 'Pengelola Aset & Koordinator Sarpras',
+  semesterAktif: 'Semester Ganjil TA 2026/2027',
+  skPengelolaAset: 'SK/421.5/SMKN6-DMI/2026/014',
+  riwayatPengelolaAset: [
+    {
+      id: 'rw-001',
+      nama: 'Rahmat Hidayat, A.Md.',
+      nip: '19880421 201101 1 003',
+      jabatan: 'Pengelola Aset & Koordinator Sarpras',
+      semester: 'Semester Ganjil TA 2026/2027',
+      nomorSK: 'SK/421.5/SMKN6-DMI/2026/014',
+      tanggalPenetapan: '2026-07-15',
+      diubahOleh: 'Admin / Pengelola Aset Sekolah',
+    },
+    {
+      id: 'rw-002',
+      nama: 'Rahmat Hidayat, A.Md.',
+      nip: '19880421 201101 1 003',
+      jabatan: 'Pengelola Aset & Inventaris Sarpras',
+      semester: 'Semester Genap TA 2025/2026',
+      nomorSK: 'SK/421.5/SMKN6-DMI/2026/002',
+      tanggalPenetapan: '2026-01-05',
+      diubahOleh: 'Admin / Pengelola Aset Sekolah',
+    },
+  ],
   telepon: '085265298697',
   email: 'smkn6dumai2023@gmail.com',
   website: 'https://smkn6dumai.sch.id',
+};
+
+export const publicVisitorUser: User = {
+  id: 'usr-publik',
+  name: 'Pengunjung Publik',
+  username: 'pengunjung',
+  role: 'publik',
+  jabatan: 'Pengunjung / Tamu Sekolah (Akses Lihat Saja)',
 };
 
 export const initialUsers: User[] = [
@@ -87,6 +119,7 @@ export const initialUsers: User[] = [
     email: 'dimas.siswa@smkn6dumai.sch.id',
     phone: '0895-1234-5678',
   },
+  publicVisitorUser,
 ];
 
 export const initialRooms: RoomItem[] = [

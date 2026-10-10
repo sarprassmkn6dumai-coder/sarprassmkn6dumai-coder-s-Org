@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AssetItem,
   DamageReport,
@@ -6,7 +6,9 @@ import {
   RoomItem,
   ActiveTab,
   UserRole,
+  User,
 } from '../types';
+import { StorageService } from '../services/storage';
 import {
   Package,
   CheckCircle2,
@@ -20,6 +22,13 @@ import {
   ArrowRightLeft,
   Wrench,
   Sparkles,
+  Briefcase,
+  Lock,
+  ShieldCheck,
+  Edit3,
+  Save,
+  Calendar,
+  FileText,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -29,6 +38,8 @@ interface DashboardViewProps {
   rooms: RoomItem[];
   setActiveTab: (tab: ActiveTab) => void;
   userRole: UserRole;
+  onOpenLoginModal?: () => void;
+  onSelectUser?: (user: User) => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -37,8 +48,58 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   loans,
   rooms,
   setActiveTab,
+  userRole,
+  onOpenLoginModal,
+  onSelectUser,
 }) => {
   const [selectedChartFilter, setSelectedChartFilter] = useState<'jurusan' | 'kategori'>('jurusan');
+
+  // Hanya Admin / Pengelola Aset Sekolah itu sendiri yang dapat mengedit Pengelola Aset Sekolah
+  const isAdminAssetManager = userRole === 'admin_sarpras';
+  const [schoolProfile, setSchoolProfile] = useState(() => StorageService.getSchoolProfile());
+  const [isEditingManager, setIsEditingManager] = useState(false);
+  const [managerName, setManagerName] = useState(schoolProfile.pengelolaAset || 'Rahmat Hidayat, A.Md.');
+  const [managerNip, setManagerNip] = useState(schoolProfile.nipPengelolaAset || '19880421 201101 1 003');
+  const [managerJabatan, setManagerJabatan] = useState(schoolProfile.jabatanPengelolaAset || 'Pengelola Aset & Koordinator Sarpras');
+  const [managerSemester, setManagerSemester] = useState(schoolProfile.semesterAktif || 'Semester Ganjil TA 2026/2027');
+  const [managerSK, setManagerSK] = useState(schoolProfile.skPengelolaAset || 'SK/421.5/SMKN6-DMI/2026/014');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    const fresh = StorageService.getSchoolProfile();
+    setSchoolProfile(fresh);
+    setManagerName(fresh.pengelolaAset || 'Rahmat Hidayat, A.Md.');
+    setManagerNip(fresh.nipPengelolaAset || '19880421 201101 1 003');
+    setManagerJabatan(fresh.jabatanPengelolaAset || 'Pengelola Aset & Koordinator Sarpras');
+    setManagerSemester(fresh.semesterAktif || 'Semester Ganjil TA 2026/2027');
+    setManagerSK(fresh.skPengelolaAset || 'SK/421.5/SMKN6-DMI/2026/014');
+    if (!isAdminAssetManager) {
+      setIsEditingManager(false);
+    }
+  }, [userRole, isAdminAssetManager]);
+
+  const handleSaveManager = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAdminAssetManager) return;
+    if (!managerName.trim()) return;
+
+    const updatedUser = StorageService.updateAssetManager({
+      name: managerName.trim(),
+      jabatan: managerJabatan.trim() || 'Pengelola Aset & Koordinator Sarpras',
+      nip: managerNip.trim(),
+      semester: managerSemester.trim(),
+      nomorSK: managerSK.trim(),
+    });
+
+    const fresh = StorageService.getSchoolProfile();
+    setSchoolProfile(fresh);
+    if (onSelectUser) {
+      onSelectUser(updatedUser);
+    }
+    setIsEditingManager(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3500);
+  };
 
   // Stats calculation
   const totalAssetsCount = (assets || []).reduce((sum, item) => sum + (item?.jumlah || 1), 0);
@@ -122,6 +183,232 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* Decorative background glow */}
         <div className="absolute right-0 top-0 -mt-10 -mr-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      </div>
+
+      {/* Kartu Pejabat Pengelola Aset Sekolah (Dapat Diedit / Berganti Tiap Semester — Terkunci bagi Publik) */}
+      <div className="bg-white rounded-2xl border border-blue-200/90 p-5 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 shrink-0">
+              <Briefcase className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                  Pengelola Aset Sekolah (Dapat Diedit / Berganti Tiap Semester)
+                </h2>
+                {isAdminAssetManager ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-bold">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Mode Kelola Aktif (Admin / Pengelola Aset)</span>
+                  </span>
+                ) : (
+                  <span
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-bold"
+                    title="Tidak dapat diedit oleh pengunjung atau publik kecuali Admin / Pengelola Aset Sekolah itu sendiri"
+                  >
+                    <Lock className="w-3 h-3 text-amber-600" />
+                    <span>Terkunci bagi Pengunjung / Publik</span>
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pejabat penanggung jawab inventaris sarana & prasarana SMKN 6 Dumai periode berjalan. Hanya dapat diubah oleh Admin / Pengelola Aset Sekolah.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {isAdminAssetManager ? (
+              !isEditingManager ? (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingManager(true)}
+                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Edit Pengelola / Ganti Semester</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingManager(false)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+              )
+            ) : (
+              <div className="flex items-center gap-2">
+                <span
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 text-xs font-semibold flex items-center gap-1.5 select-none"
+                  title="Terkunci: Pengunjung / publik tidak dapat mengedit Pengelola Aset Sekolah"
+                >
+                  <Lock className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Edit Dikunci</span>
+                </span>
+                {onOpenLoginModal && (
+                  <button
+                    type="button"
+                    onClick={onOpenLoginModal}
+                    className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Login Pengelola Aset</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {saveSuccess && (
+          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Data Pengelola Aset Sekolah & Periode Semester berhasil diperbarui!</span>
+          </div>
+        )}
+
+        {isEditingManager && isAdminAssetManager ? (
+          <form
+            onSubmit={handleSaveManager}
+            className="p-4 rounded-xl bg-blue-50/50 border border-blue-200 space-y-3.5 animate-in fade-in"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nama Lengkap & Gelar <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={managerName}
+                  onChange={(e) => setManagerName(e.target.value)}
+                  placeholder="Contoh: Rahmat Hidayat, A.Md."
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  NIP / NUPTK Pejabat <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={managerNip}
+                  onChange={(e) => setManagerNip(e.target.value)}
+                  placeholder="Contoh: 19880421 201101 1 003"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Periode Semester Aktif <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  list="dashboard-semester-list"
+                  required
+                  value={managerSemester}
+                  onChange={(e) => setManagerSemester(e.target.value)}
+                  placeholder="Contoh: Semester Ganjil TA 2026/2027"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <datalist id="dashboard-semester-list">
+                  <option value="Semester Ganjil TA 2025/2026" />
+                  <option value="Semester Genap TA 2025/2026" />
+                  <option value="Semester Ganjil TA 2026/2027" />
+                  <option value="Semester Genap TA 2026/2027" />
+                  <option value="Semester Ganjil TA 2027/2028" />
+                  <option value="Semester Genap TA 2027/2028" />
+                </datalist>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nomor SK Penugasan Semester
+                </label>
+                <input
+                  type="text"
+                  value={managerSK}
+                  onChange={(e) => setManagerSK(e.target.value)}
+                  placeholder="Contoh: SK/421.5/SMKN6-DMI/2026/014"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-blue-200/70">
+              <button
+                type="button"
+                onClick={() => setActiveTab('pengaturan')}
+                className="text-xs text-blue-700 hover:underline font-medium"
+              >
+                Lihat Riwayat Pergantian Semester Lengkap &rarr;
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingManager(false)}
+                  className="px-3 py-1.5 text-xs text-slate-600 bg-white border border-slate-300 rounded-xl cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Simpan Pejabat Semester</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 p-3.5 rounded-xl bg-slate-50/90 border border-slate-200/80 text-xs">
+            <div>
+              <span className="text-slate-400 block text-[11px]">Pejabat Pengelola Aset:</span>
+              <span className="font-bold text-slate-900 text-sm block mt-0.5">
+                {schoolProfile.pengelolaAset || 'Rahmat Hidayat, A.Md.'}
+              </span>
+              <span className="text-slate-500 font-mono text-[11px]">
+                NIP. {schoolProfile.nipPengelolaAset || '19880421 201101 1 003'}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-slate-400 block text-[11px]">Jabatan Resmi:</span>
+              <span className="font-semibold text-slate-800 block mt-0.5">
+                {schoolProfile.jabatanPengelolaAset || 'Pengelola Aset & Koordinator Sarpras'}
+              </span>
+              <span className="text-emerald-600 font-medium text-[11px]">
+                Penanggung Jawab Inventaris
+              </span>
+            </div>
+
+            <div>
+              <span className="text-slate-400 block text-[11px]">Masa Tugas / Semester Aktif:</span>
+              <span className="font-bold text-blue-700 flex items-center gap-1 mt-0.5">
+                <Calendar className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>{schoolProfile.semesterAktif || 'Semester Ganjil TA 2026/2027'}</span>
+              </span>
+              <span className="text-slate-400 text-[11px]">Dapat diperbarui tiap semester</span>
+            </div>
+
+            <div>
+              <span className="text-slate-400 block text-[11px]">SK Penugasan & Hak Akses:</span>
+              <span className="font-mono font-semibold text-slate-700 flex items-center gap-1 mt-0.5">
+                <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>{schoolProfile.skPengelolaAset || 'SK/421.5/SMKN6-DMI/2026/014'}</span>
+              </span>
+              <span className="text-amber-700 font-medium text-[11px]">
+                {isAdminAssetManager ? 'Dapat diedit oleh Anda' : 'Terkunci untuk Pengunjung / Publik'}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 5 Kartu Statistik Utama */}

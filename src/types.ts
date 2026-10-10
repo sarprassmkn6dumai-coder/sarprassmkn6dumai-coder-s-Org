@@ -1,4 +1,4 @@
-export type UserRole = 'admin_sarpras' | 'waka_sarpras' | 'guru' | 'staf' | 'siswa';
+export type UserRole = 'admin_sarpras' | 'waka_sarpras' | 'guru' | 'staf' | 'siswa' | 'publik';
 
 export interface User {
   id: string;
@@ -237,6 +237,17 @@ export interface StorageConfig {
   lastSyncTimestamp?: string;
 }
 
+export interface AssetManagerHistoryItem {
+  id: string;
+  nama: string;
+  nip: string;
+  jabatan: string;
+  semester: string;
+  nomorSK?: string;
+  tanggalPenetapan: string;
+  diubahOleh: string;
+}
+
 export interface SchoolProfile {
   namaSekolah: string;
   npsn: string;
@@ -252,7 +263,10 @@ export interface SchoolProfile {
   nipWakaSarpras: string;
   pengelolaAset: string;
   nipPengelolaAset?: string;
+  jabatanPengelolaAset?: string;
   semesterAktif?: string;
+  skPengelolaAset?: string;
+  riwayatPengelolaAset?: AssetManagerHistoryItem[];
   telepon: string;
   email: string;
   website: string;

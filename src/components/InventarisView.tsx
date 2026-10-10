@@ -13,14 +13,15 @@ import {
   Plus,
   Edit2,
   Trash2,
-  Download,
-  Printer,
   QrCode,
   CheckCircle2,
   AlertTriangle,
   X,
   FileSpreadsheet,
-  Layers,
+  Lock,
+  ShieldCheck,
+  Eye,
+  KeyRound,
 } from 'lucide-react';
 
 interface InventarisViewProps {
@@ -31,6 +32,7 @@ interface InventarisViewProps {
   onUpdateAsset: (asset: AssetItem) => void;
   onDeleteAsset: (id: string) => void;
   onSelectAssetForQR: (asset: AssetItem) => void;
+  onOpenLoginModal?: () => void;
 }
 
 export const InventarisView: React.FC<InventarisViewProps> = ({
@@ -41,8 +43,10 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
   onUpdateAsset,
   onDeleteAsset,
   onSelectAssetForQR,
+  onOpenLoginModal,
 }) => {
-  const isFullAccess = userRole === 'admin_sarpras' || userRole === 'waka_sarpras';
+  // Hanya Admin / Pengelola Aset Sekolah (admin_sarpras) yang dapat menambah, mengedit, dan menghapus katalog inventaris
+  const isAdminAssetManager = userRole === 'admin_sarpras';
 
   // Filters and Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,6 +59,7 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<AssetItem | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [viewingAsset, setViewingAsset] = useState<AssetItem | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -96,8 +101,9 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
     });
   }, [assets, searchQuery, filterKategori, filterKondisi, filterRuangan, filterJurusan]);
 
-  // Handle open modal for create
+  // Handle open modal for create (Khusus Admin / Pengelola Aset Sekolah)
   const handleOpenAdd = () => {
+    if (!isAdminAssetManager) return;
     const nextNumber = assets.length + 1;
     const kodeDefault = `AST-SMK6-BRG-${String(nextNumber).padStart(3, '0')}`;
     setEditingAsset(null);
@@ -120,8 +126,9 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
     setIsModalOpen(true);
   };
 
-  // Handle open modal for edit
+  // Handle open modal for edit (Khusus Admin / Pengelola Aset Sekolah)
   const handleOpenEdit = (asset: AssetItem) => {
+    if (!isAdminAssetManager) return;
     setEditingAsset(asset);
     setFormData({
       kode: asset.kode,
@@ -142,9 +149,10 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
     setIsModalOpen(true);
   };
 
-  // Handle submit form
+  // Handle submit form (Khusus Admin / Pengelola Aset Sekolah)
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdminAssetManager) return;
     const matchedRoom = rooms.find((r) => r.id === formData.ruanganId);
     const ruanganNama = matchedRoom ? matchedRoom.namaRuang : 'Gudang Utama Sarpras';
 
@@ -216,11 +224,22 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 tracking-tight">Katalog Inventaris Sarpras</h2>
             <span className="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
               {filteredAssets.length} Aset
             </span>
+            {isAdminAssetManager ? (
+              <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-2.5 py-0.5 rounded-full">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                Mode Admin / Pengelola Aset
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11px] bg-amber-50 text-amber-800 border border-amber-300 font-bold px-2.5 py-0.5 rounded-full">
+                <Lock className="w-3 h-3 text-amber-600" />
+                Mode Katalog Publik (Hanya Baca)
+              </span>
+            )}
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
             Daftar data barang, mesin praktek, alat laboratorium, dan perlengkapan SMKN 6 Dumai.
@@ -238,7 +257,7 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
             <span>Ekspor Excel/CSV</span>
           </button>
 
-          {isFullAccess && (
+          {isAdminAssetManager ? (
             <button
               id="btn-tambah-barang"
               onClick={handleOpenAdd}
@@ -247,9 +266,60 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
               <Plus className="w-4 h-4" />
               <span>Tambah Barang Baru</span>
             </button>
+          ) : (
+            onOpenLoginModal && (
+              <button
+                id="btn-login-admin-inventaris"
+                onClick={onOpenLoginModal}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-xs transition-all cursor-pointer"
+                title="Masuk sebagai Admin / Pengelola Aset Sekolah untuk mengelola inventaris"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                <span>Login Pengelola Aset</span>
+              </button>
+            )
           )}
         </div>
       </div>
+
+      {/* Proteksi Katalog Banner untuk Publik / Pengunjung */}
+      {!isAdminAssetManager ? (
+        <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="p-2 rounded-xl bg-amber-100 text-amber-700 border border-amber-200 shrink-0">
+              <Lock className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-amber-900">
+                Proteksi Katalog Inventaris Aktif (Akses Publik / Pengunjung)
+              </h4>
+              <p className="text-[11px] text-amber-800/90 leading-relaxed mt-0.5">
+                Katalog inventaris ini bersifat <strong>Hanya Baca (Read-Only)</strong> bagi publik dan pengunjung. Fitur tambah, ubah (edit), serta hapus data aset dikunci dan hanya dapat diakses oleh <strong>Admin / Pengelola Aset Sekolah</strong>.
+              </p>
+            </div>
+          </div>
+          {onOpenLoginModal && (
+            <button
+              type="button"
+              onClick={onOpenLoginModal}
+              className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shrink-0 transition-colors cursor-pointer self-start sm:self-center"
+            >
+              Masuk Admin Aset &rarr;
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-200 shrink-0">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <p className="text-xs text-emerald-900">
+              <strong>Akses Pengelola Aset Sekolah Aktif:</strong> Anda dapat menambahkan barang baru, mengedit data aset, maupun menghapus barang pada katalog inventaris ini.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3">
@@ -444,33 +514,50 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
                       {/* Aksi */}
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* Lihat Detail (Tersedia untuk semua pengunjung & admin) */}
+                          <button
+                            onClick={() => setViewingAsset(asset)}
+                            className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                            title="Lihat Detail Spesifikasi Aset"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+
                           {/* QR Code Action */}
                           <button
                             onClick={() => onSelectAssetForQR(asset)}
-                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 border border-blue-200 transition-colors"
-                            title="Generate & Cetak Stiker QR Code"
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 border border-blue-200 transition-colors cursor-pointer"
+                            title="Lihat & Cetak Stiker QR Code"
                           >
                             <QrCode className="w-4 h-4" />
                           </button>
 
-                          {isFullAccess && (
+                          {isAdminAssetManager ? (
                             <>
                               <button
                                 onClick={() => handleOpenEdit(asset)}
-                                className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
-                                title="Edit Data Barang"
+                                className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                                title="Edit Data Barang (Khusus Admin / Pengelola Aset)"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
 
                               <button
                                 onClick={() => setDeleteConfirmId(asset.id)}
-                                className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors"
-                                title="Hapus Barang"
+                                className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
+                                title="Hapus Barang (Khusus Admin / Pengelola Aset)"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </>
+                          ) : (
+                            <span
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 text-slate-400 border border-slate-200 text-[10px] font-semibold select-none cursor-not-allowed"
+                              title="Terkunci: Hanya Admin / Pengelola Aset Sekolah yang dapat mengedit atau menghapus data aset"
+                            >
+                              <Lock className="w-3 h-3" />
+                              <span className="hidden sm:inline">Terkunci</span>
+                            </span>
                           )}
                         </div>
                       </td>
@@ -483,8 +570,137 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
         </div>
       </div>
 
-      {/* Modal Tambah/Edit Aset */}
-      {isModalOpen && (
+      {/* Modal Detail Aset (Read-Only untuk Publik / Pengunjung maupun Admin) */}
+      {viewingAsset && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="bg-[#0F172A] p-5 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Package className="w-5 h-5 text-blue-400" />
+                <div>
+                  <h3 className="font-bold text-base">Detail Katalog Aset Inventaris</h3>
+                  <p className="text-[11px] text-slate-300 font-mono">{viewingAsset.kode}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setViewingAsset(null)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <div>
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Nama Barang / Aset</span>
+                <p className="text-sm font-bold text-slate-900 mt-0.5">{viewingAsset.nama}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Kategori</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.kategori}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Jurusan / Bidang</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.jurusan}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Lokasi Ruangan</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.ruanganNama}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Jumlah & Satuan</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.jumlah} {viewingAsset.satuan}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Kondisi Fisik</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.kondisi}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Status Ketersediaan</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.status}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Tahun & Sumber Dana</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.tahunPerolehan} ({viewingAsset.sumberDana})</span>
+                </div>
+                <div>
+                  <span className="text-[11px] text-slate-500 block">Terakhir Diperiksa</span>
+                  <span className="font-bold text-slate-800">{viewingAsset.terakhirDiperiksa || '-'}</span>
+                </div>
+              </div>
+
+              {viewingAsset.spesifikasi && (
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-500 block mb-1">Spesifikasi Teknis</span>
+                  <p className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 leading-relaxed">
+                    {viewingAsset.spesifikasi}
+                  </p>
+                </div>
+              )}
+
+              {viewingAsset.keterangan && (
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-500 block mb-1">Keterangan / Catatan</span>
+                  <p className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 leading-relaxed">
+                    {viewingAsset.keterangan}
+                  </p>
+                </div>
+              )}
+
+              {!isAdminAssetManager && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center gap-2 text-[11px] text-amber-800">
+                  <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Data katalog diproteksi. Hanya <strong>Admin / Pengelola Aset Sekolah</strong> yang dapat mengedit atau menghapus data ini.</span>
+                </div>
+              )}
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = viewingAsset;
+                    setViewingAsset(null);
+                    onSelectAssetForQR(target);
+                  }}
+                  className="px-3.5 py-2 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>Lihat Label QR</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  {isAdminAssetManager && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const target = viewingAsset;
+                        setViewingAsset(null);
+                        handleOpenEdit(target);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span>Edit Aset</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setViewingAsset(null)}
+                    className="px-4 py-2 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 cursor-pointer"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Tambah/Edit Aset (Khusus Admin / Pengelola Aset Sekolah) */}
+      {isAdminAssetManager && isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4 overflow-y-auto">
           <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95">
             <div className="bg-[#0F172A] p-5 text-white flex items-center justify-between">
@@ -689,8 +905,8 @@ export const InventarisView: React.FC<InventarisViewProps> = ({
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirmId && (
+      {/* Delete Confirmation Modal (Khusus Admin / Pengelola Aset Sekolah) */}
+      {isAdminAssetManager && deleteConfirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-4">
           <div className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-2xl text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">

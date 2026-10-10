@@ -42,12 +42,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onContinue
   const [rememberMe, setRememberMe] = useState(true);
 
   // Register Form States
+  const schoolProfile = StorageService.getSchoolProfile();
   const [regName, setRegName] = useState('');
   const [regUsername, setRegUsername] = useState('');
   const [regEmail, setRegEmail] = useState('');
-  const [regRole, setRegRole] = useState<UserRole>('admin_sarpras');
+  const [regRole, setRegRole] = useState<UserRole>('guru');
   const [regJurusan, setRegJurusan] = useState('Teknik Ketenagalistrikan');
-  const [regJabatan, setRegJabatan] = useState('Administrator Sarpras');
+  const [regJabatan, setRegJabatan] = useState('Guru Produktif / Kepala Bengkel');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -325,6 +326,46 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, onContinue
                     </h3>
                     <p className="text-xs text-slate-500 mt-1">
                       Silakan masukkan akun admin atau NIP/NISN dan kata sandi Anda.
+                    </p>
+                  </div>
+
+                  {/* Read-Only Info Pengelola Aset Sekolah (Tiap Semester) */}
+                  <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 text-xs space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                        <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Pengelola Aset Sekolah (Tiap Semester)</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-bold">
+                        <Lock className="w-2.5 h-2.5 text-amber-600" />
+                        <span>Terkunci bagi Publik</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-blue-200/60">
+                      <div>
+                        <p className="font-bold text-slate-900 text-sm">
+                          {schoolProfile.pengelolaAset || 'Rahmat Hidayat, A.Md.'}
+                        </p>
+                        <p className="text-[11px] text-slate-600">
+                          NIP. {schoolProfile.nipPengelolaAset || '19880421 201101 1 003'} &bull;{' '}
+                          <span className="font-semibold text-blue-700">
+                            {schoolProfile.semesterAktif || 'Semester Ganjil TA 2026/2027'}
+                          </span>
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAccount('pengelola.aset');
+                          setErrorMessage(null);
+                        }}
+                        className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[11px] shrink-0 transition-colors cursor-pointer"
+                      >
+                        Login Pengelola Aset &rarr;
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Data Pengelola Aset Sekolah (pergantian tiap semester) tidak dapat diedit oleh pengunjung/publik kecuali oleh <strong>Admin / Pengelola Aset Sekolah</strong> itu sendiri setelah login.
                     </p>
                   </div>
 

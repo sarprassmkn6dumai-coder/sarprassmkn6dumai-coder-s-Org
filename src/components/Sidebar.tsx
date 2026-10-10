@@ -22,6 +22,8 @@ import {
   User,
   LogOut,
   Briefcase,
+  Lock,
+  Edit3,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -301,33 +303,64 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center gap-2 text-slate-300">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span className="font-semibold text-slate-200">
-                {isFullAccess ? 'Mode Administrator' : 'Mode Terbatas'}
+                {userRole === 'admin_sarpras'
+                  ? 'Mode Admin / Pengelola Aset'
+                  : userRole === 'publik'
+                  ? 'Mode Pengunjung Publik'
+                  : isFullAccess
+                  ? 'Mode Waka Sarpras'
+                  : 'Mode Terbatas'}
               </span>
             </div>
 
-            {/* School Asset Manager Info Badge */}
+            {/* School Asset Manager Info Badge (Dapat Diedit Tiap Semester Khusus Admin / Pengelola Aset) */}
             {(() => {
               const sp = StorageService.getSchoolProfile();
+              const isAdminAssetManager = userRole === 'admin_sarpras';
               return (
-                <div className="p-2 rounded-lg bg-slate-800/80 border border-slate-700/60 text-[11px] space-y-0.5">
-                  <div className="flex items-center gap-1.5 text-blue-400 font-semibold">
-                    <Briefcase className="w-3 h-3" />
-                    <span>Pengelola Aset Sekolah:</span>
+                <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-[11px] space-y-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1.5 text-blue-400 font-semibold">
+                      <Briefcase className="w-3 h-3 shrink-0" />
+                      <span>Pengelola Aset:</span>
+                    </div>
+                    {isAdminAssetManager ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSelectTab('pengaturan')}
+                        className="text-[10px] text-emerald-300 hover:text-emerald-200 flex items-center gap-0.5 font-semibold cursor-pointer"
+                        title="Edit Pengelola Aset / Ganti Semester"
+                      >
+                        <Edit3 className="w-2.5 h-2.5" />
+                        <span>Edit</span>
+                      </button>
+                    ) : (
+                      <span
+                        className="text-[10px] text-amber-300/90 flex items-center gap-0.5 font-medium"
+                        title="Terkunci: Tidak dapat diedit oleh pengunjung/publik"
+                      >
+                        <Lock className="w-2.5 h-2.5" />
+                        <span>Terkunci</span>
+                      </span>
+                    )}
                   </div>
                   <div className="font-bold text-slate-200 truncate">
                     {sp.pengelolaAset || 'Rahmat Hidayat, A.Md.'}
                   </div>
-                  <div className="text-[10px] text-slate-400 truncate">
-                    {sp.semesterAktif || 'Semester Genap TA 2024/2025'}
+                  <div className="text-[10px] text-slate-400 truncate font-mono">
+                    NIP. {sp.nipPengelolaAset || '19880421 201101 1 003'}
+                  </div>
+                  <div className="text-[10px] text-blue-300 font-medium truncate">
+                    {sp.semesterAktif || 'Semester Ganjil TA 2026/2027'}
                   </div>
                 </div>
               );
             })()}
 
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              {isFullAccess
-                ? 'Hak akses penuh: CRUD aset, approval, anggaran & integrasi Sheets.'
-                : 'Akses terbatas untuk pelaporan kerusakan dan peminjaman alat.'}
+              {userRole === 'admin_sarpras'
+                ? 'Hak akses penuh: Tambah, edit & hapus katalog aset, anggaran & integrasi Sheets.'
+                : 'Katalog inventaris diproteksi (Read-Only). Hanya Admin / Pengelola Aset yang dapat mengedit atau menghapus.'}
             </p>
             {onLogout && (
               <button
